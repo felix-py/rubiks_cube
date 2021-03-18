@@ -1,4 +1,32 @@
+"""
+https://en.wikipedia.org/wiki/Rubik%27s_Cube
+
+Move notation:
+
+Many 3×3×3 Rubik's Cube enthusiasts use a notation developed by David Singmaster to denote a sequence of moves, referred
+to as "Singmaster notation". Its relative nature allows algorithms to be written in such a way that they can be applied
+regardless of which side is designated the top or how the colours are organised on a particular cube.
+
+F (Front): the side currently facing the solver
+B (Back): the side opposite the front
+U (Up): the side above or on top of the front side
+D (Down): the side opposite the top, underneath the Cube
+L (Left): the side directly to the left of the front
+R (Right): the side directly to the right of the front
+
+When a prime symbol ( ′ ) follows a letter, it denotes an anticlockwise face turn; while a letter without a prime symbol
+denotes a clockwise turn. These directions are as one is looking at the specified face. A letter followed by a 2
+(occasionally a superscript ²) denotes two turns, or a 180-degree turn. R is right side clockwise, but R′ is right side
+anticlockwise.
+"""
+
 import numpy as np
+
+POSSIBLE_MOVES = [
+    'F', 'B', 'U', 'D', 'L', 'R',
+    'F2', 'B2', 'U2', 'D2', 'L2', 'R2',
+    "F’", "B’", "U’", "D’", "L’", "R’"
+]
 
 COLOR_BOARD = [
     # TOP SIDE
@@ -27,6 +55,8 @@ COLOR_BOARD = [
      ['y', 'y', 'y']]
 ]
 
+# TODO CHECK FI THE BACK SIDE IS CORRECT
+#  MAYBE IT SHOULD BE COUNTERCLOCKWISE ?? => [['R', 'q', 'Q'], ...
 LETTER_BOARD = [
     # TOP SIDE
     [['A', 'a', 'B'],
@@ -54,28 +84,7 @@ LETTER_BOARD = [
      ['X', 'w', 'W']]
 ]
 
-"""
-Move notation:
-
-Many 3×3×3 Rubik's Cube enthusiasts use a notation developed by David Singmaster to denote a sequence of moves, referred
-to as "Singmaster notation". Its relative nature allows algorithms to be written in such a way that they can be applied
-regardless of which side is designated the top or how the colours are organised on a particular cube.
-
-F (Front): the side currently facing the solver
-B (Back): the side opposite the front
-U (Up): the side above or on top of the front side
-D (Down): the side opposite the top, underneath the Cube
-L (Left): the side directly to the left of the front
-R (Right): the side directly to the right of the front
-
-When a prime symbol ( ′ ) follows a letter, it denotes an anticlockwise face turn; while a letter without a prime symbol
-denotes a clockwise turn. These directions are as one is looking at the specified face. A letter followed by a 2 
-(occasionally a superscript ²) denotes two turns, or a 180-degree turn. R is right side clockwise, but R′ is right side 
-anticlockwise. 
-"""
-
 # translate cube notation in function name
-
 TRANSLATION_DICTIONARY = {
     'F': 'F',
     'B': 'B',
@@ -108,6 +117,34 @@ class CubeObj:
 
     def __str__(self) -> str:
         return str(np.array(self._board))
+
+    def __len__(self) -> int:
+        return len(self._board)
+
+    @property
+    def board(self) -> list:
+        return self._board
+
+    @board.setter
+    def board(self, input_board: list) -> None:
+        if not isinstance(input_board, list): raise ValueError('Board has to be a list.')
+        if len(input_board) != 6: raise ValueError('Len fo Board has to be 6.')
+
+        for item in input_board:
+            if len(item) != 3:
+                raise ValueError('The length of the Items in board must be 3.')
+
+        self._board = input_board
+
+    # !!! THIS IS NOT A @staticmethod  OR FUNCTION IT IS A METHOD !!!!
+    def translate(self, txt: str) -> None:
+        """
+        translate cube notation into function names, and call them
+        """
+        new_txt = txt.upper().replace("'", "’").replace('(', '').replace('(', '')  # (r') -> R’
+
+        for instruction in new_txt.split():
+            exec(f"self.{TRANSLATION_DICTIONARY[instruction]}()")
 
     def F(self) -> None:
         """
@@ -211,277 +248,32 @@ class CubeObj:
         self._board[1][self._height - 1] = green_row[::-1]
         self._board[5] = np.rot90(np.array(self._board[5]), 3).tolist()
 
-    def II_F(self) -> None:
-        [self.F() for _ in range(2)]
+    def II_F(self) -> None: [self.F() for _ in range(2)]
+    def II_B(self) -> None: [self.B() for _ in range(2)]
+    def II_R(self) -> None: [self.R() for _ in range(2)]
+    def II_L(self) -> None: [self.L() for _ in range(2)]
+    def II_U(self) -> None: [self.U() for _ in range(2)]
+    def II_D(self) -> None: [self.D() for _ in range(2)]
 
-    def II_B(self) -> None:
-        [self.B() for _ in range(2)]
-
-    def II_R(self) -> None:
-        [self.R() for _ in range(2)]
-
-    def II_L(self) -> None:
-        [self.L() for _ in range(2)]
-
-    def II_U(self) -> None:
-        [self.U() for _ in range(2)]
-
-    def II_D(self) -> None:
-        [self.D() for _ in range(2)]
-
-    def anti_F(self) -> None:
-        [self.F() for _ in range(3)]
-
-    def anti_B(self) -> None:
-        [self.B() for _ in range(3)]
-
-    def anti_R(self) -> None:
-        [self.R() for _ in range(3)]
-
-    def anti_L(self) -> None:
-        [self.L() for _ in range(3)]
-
-    def anti_U(self) -> None:
-        [self.U() for _ in range(3)]
-
-    def anti_D(self) -> None:
-        [self.D() for _ in range(3)]
-
-    # ATTENTION (THIS IS NOT A @staticmethod  or function !!!!)
-    def translate(self, txt: str) -> None:
-        """
-        ATTENTION THIS IS NOT A @staticmethod, IF YOU MAKE IT ONE IT WILL NO LONGER WORK !!!!
-        IT USES THE SELF IN A EXEC
-
-        translate cube notation into function calls
-        """
-        new_txt = txt.replace("'", "’").replace('(', '').replace('(', '')  # (R') -> R’
-
-        for instruction in new_txt.split():
-            exec(f"self.{TRANSLATION_DICTIONARY[instruction]}()")
-
-    def a_perm_01(self) -> None:
-        """
-        Lw' U R' D2 R U' R' D2 R2
-        y2 (L' B L') (F2 L B' L') (F2 L2)
-        R' U2 R2 U' L' U R' U' L U R' U2 R
-        x R' U R' D2 R U' R' D2 R2
-        y2 z F2 R U2 R' U2 F2 L' U2 L U2
-        """
-        self.translate("R' U2 R2 U' L' U R' U' L U R' U2 R")
-
-    # todo
-    def a_perm_02(self) -> None:
-        """
-        Rw U' L D2 L' U L D2 L2, oder
-        y x R2 D2 R U R' D2 R U' R, oder
-        y R' U2 R U' L' U R U' L U R2 U2 R, oder
-        y' z U2 L' U2 L F2 U2 R U2 R' F2, oder
-        y2 z' F2 L' U2 L U2 F2 R U2 R' U2
-        """
-        self.translate("")
-
-    # todo
-    def e_perm(self) -> None:
-        """
-        x' R U' R' D R U R' D' R U R' D R U' R' D', oder
-        x' R U' R' D R U R' Uw2 R' U R D R' U' R, oder
-        x' R U' R' D R U R' D2 L' U L D L' U' L, oder
-        z' R' F R2 U R' B' R U' R2 F' R z R B R', oder
-        y x U R' U' L U R U' r2' U' R U L U' R' U, oder
-        (r' R' U') (L D' L' U L) (R U' R' D R) U
-        """
-        self.translate("")
-
-    # todo
-    def z_perm(self) -> None:
-        """
-        M2 U M2 U M' U2 M2 U2 M' U2, oder
-        y M2 U' M2 U' M' U2 M2 U2 M' U2, oder
-        R2 U' R2 U R2 x' U2 R2 F U2 F' R2 U2, oder
-        R' U L' E2 L U' R L' U R' E2 R U' L', oder
-        U' l' U R U' D' R U D' R U' R' D2, oder
-        y F2 M2 F2 M2 U M2 U M2 U2
-        """
-        self.translate("")
-
-    def h_perm(self) -> None:
-        """
-        M2 U M2 U2 M2 U M2, oder
-        M2 U' M2 U2 M2 U' M2, oder
-        R2' r2 U' L2 l2' U2 R2' r2 U' L2 l2', oder
-        F2 M2 F2 U' F2 M2 F2 U, oder
-        x U2 M2 U2 B' U2 M2 U2 B, oder
-        R U2 R' U' R' U' R2 U' R2 U2 R2 U2 R' U
-        """
-        self.translate("R U2 R' U' R' U' R2 U' R2 U2 R2 U2 R' U")
-
-    def u_perm_01(self) -> None:
-        """
-        R U' R U R U R U' R' U' R2, oder
-        M2 U M U2 M' U M2, oder
-        y2 M2 U M' U2 M U M2, oder
-        y' R2 U' y r U2 r' R U2 R' y' U R2
-        """
-        self.translate("R U' R U R U R U' R' U' R2")
-
-    def u_perm_02(self) -> None:
-        """
-        R2 U R U R' U' R' U' R' U R', oder
-        M2 U' M U2 M' U' M2, oder
-        y2 M2 U' M' U2 M U' M2, oder
-        y2 R' U R' U' R' U' R' U R U R2, oder
-        y2 L' U' L U R U R' U2 L' U L U R U' R'
-        """
-        self.translate("R2 U R U R' U' R' U' R' U R'")
-
-    def j_perm_01(self) -> None:
-        """
-        J-Perm auch L-Perm genannt
-
-        L' U' L F L' U' L U L F' L2 U L U, oder
-        R U' L' U R' U2 L U' L' U2' L, oder
-        y2 R' U2 R U R' z R2 U R' D R U', oder
-        y2 F2 L' U' r U2 l' U R' U' R2, oder
-        y R' U L' U2 R U' R' U2 L R U'
-        """
-        self.translate("R U' L' U R' U2 L U' L' U2' L")
-
-    def j_perm_02(self) -> None:
-        """
-        R U R' F' R U R' U' R' F R2 U' R' U', oder
-        R U2 R' U' R U2 L' U R' U' L, oder
-        y2 R L U2 L' U' L U2 R' U L' U', oder
-        y2 r2 U' L' U r' U2 R B' R' U2
-        """
-        self.translate("R U2 R' U' R U2 L' U R' U' L")
-
-    def t_perm(self) -> None:
-        """
-        R U R' U' R' F R2 U' R' U' R U R' F', oder
-        F R U' R' U R U R2 F' R U R U' R', oder
-        R2 U R2' U' R2 U' D R2' U' R2 U R2' D', oder
-        y' U R2' u' R2 U R2' y R2 u R2' U' R2
-        """
-        self.translate("F R U' R' U R U R2 F' R U R U' R'")
-
-    def r_perm_01(self) -> None:
-        """
-        R' U2 R U2 R' F R U R' U' R' F' R2 U', oder
-        R' U2 R U' y' R' F R B' R' F' R z x' R' U R', oder
-        y2 R' U2 l R U' R' U l' U2' R F R U' R' U' R U R' F', oder
-        y R2 B2 U' R' U' R U R U B2 R U' R U
-        """
-        self.translate("R' U2 R U2 R' F R U R' U' R' F' R2 U'")
-
-    def r_perm_02(self) -> None:
-        """
-        L U2 L' U2 L F' L' U' L U L F L2 U, oder
-        z U R2 U' R2 U F' U' R' U R U F U2 R, oder
-        y2 R U2 R' U2 R B' R' U' R U R B R2' U, oder
-        y R U R' F' R U2 R' U2 R' F R U R U2 R' U', oder
-        y2 R U2 R' U' (R' F' R) U2 R U2 R' F R U' R' U
-        """
-        self.translate("L U2 L' U2 L F' L' U' L U L F L2 U")
-
-    # todo
-    def f_perm(self) -> None:
-        """
-        R U' R' U R2 y R U R' U' F' Dw R2 F R F', oder
-        y' R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R, oder
-        y' U R U' R' U R2 y R U R' U' x U' R' U R U2, oder
-        y z R U R' U' R U2 (z'y') R U R' U' (yx) L' U' L U L2, oder
-        y2 R' U R U' R2' F' U' F U R U' x' R2 U' R' U, oder
-        y' R U R' U R U2 R2 U' R U' R' U2 R U r U R' U' L' U R U'
-        """
-        self.translate("")
-
-    # todo
-    def v_perm(self) -> None:
-        """
-        R' U R' Dw' R' F' R2 U' R' U R' F R F, oder
-        R' U R' Dw' x Lw' U R' U' Lw R U' R' U R U, oder
-        R' U R' U' y R' F' R2 U' R' U R' F R F, oder
-        y2 R U' L' U R' U' R U' L U R' U2 L' U2 L, oder
-        y L' U R U' L U L' U R' U' L U2 R U2 R'
-        """
-        self.translate("")
-
-    def n_perm_01(self) -> None:
-        """
-        R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R', oder
-        R U' R' U Lw U F U' R' F' R U' R U Lw' U R', oder
-        L U' L' U L F U F' L' U' L F' L F L' U L', oder
-        F' R U R' U' R' F R2 F U' R' U' R U F' R', oder
-        L U' R U2 L' U R' L U' R U2 L' U R' U', oder
-        y' L U' R U2 L' U R' L U' R U2 L' U R' U
-        """
-        self.translate("L U' R U2 L' U R' L U' R U2 L' U R' U'")
-
-    def n_perm_02(self) -> None:
-        """
-        (R' U L' U2 R U' L) (R' U L' U2 R U' L) (U), oder
-        L' U L U' Rw' U' F' U L F L' U L' U' Rw U' L, oder
-        z U' R D' R2' U R' (U' D) R D' R2 U R' D R, oder
-        L' U R' U2' L U' L' R U R' U2' L U' R U, oder
-        R' U R U' R' F' U' F R U R' F R' F' R U' R
-        """
-        self.translate("R' U L' U2 R U' L R' U L' U2 R U' L U")
-
-    def y_perm(self) -> None:
-        """
-        F R U' R' U' R U R' F' R U R' U' R' F R F', oder
-        R2 U' R' U R U' z' y' L' U' R U' R' U' L U, oder
-        F R' F' R U R U' R2 U' R U l U' R' U F, oder
-        R' F R F' y' U' R' U R2 U R' U' R' F R F' U', oder
-        y z U2 R U R' U' R y R U L' U L U R' U'
-        """
-        self.translate("F R U' R' U' R U R' F' R U R' U' R' F R F'")
-
-    # todo
-    def g_perm_01(self) -> None:
-        """
-        R2 Uw' R U' R U R' Uw R2 y R U' R', oder
-        y F2 D' L U' L U L' D F2 R U' R', oder
-        y' L' R' U2 L R (y) L U' R U2 L' U R' U2
-        """
-        self.translate("")
-
-    # todo
-    def g_perm_02(self) -> None:
-        """
-        R2 Uw R' U R' U' R Uw' R2 y' R' U R, oder
-        R2' u R' U R' U' R u' R2 y' R' U R, oder
-        y' R L U2 R' L' (y') R' U L' U2 R U' L U2
-        """
-        self.translate("")
-
-    # todo
-    def g_perm_03(self) -> None:
-        """
-        R' U' R y R2 Uw R' U R U' R Uw' R2, oder
-        R' U' R B2 D L' U L U' L D' B2, oder
-        y2 L' U' L y' R2' u R' U R U' R u' R2
-        """
-        self.translate("")
-
-    def g_perm_04(self) -> None:
-        """
-        R U R' y' R2 Uw' R U' R' U R' Uw R2, oder
-        R U R' F2 D' L U' L' U L' D F2, oder
-        y (R' F' R F') (U' L' U) (F R' F' L F2 R)
-        """
-        self.translate("R U R' F2 D' L U' L' U L' D F2")
+    def anti_F(self) -> None: [self.F() for _ in range(3)]
+    def anti_B(self) -> None: [self.B() for _ in range(3)]
+    def anti_R(self) -> None: [self.R() for _ in range(3)]
+    def anti_L(self) -> None: [self.L() for _ in range(3)]
+    def anti_U(self) -> None: [self.U() for _ in range(3)]
+    def anti_D(self) -> None: [self.D() for _ in range(3)]
 
 
 if __name__ == '__main__':
-    x = CubeObj(3, True)
-    print('before:\n\n', str(x), '\n\n')
-    # x.F()
-    # x.anti_F()
+    """
+    example of use
+    """
+    # my_cube = CubeObj(3, True)
 
-    # x.II_B()
-    # x.II_B()
+    # print('before:\n\n', str(my_cube), '\n\n')
 
-    # x.r_perm_01()
-    print('afterwards:\n\n', str(x), '\n\n')
+    # do some moves ...
+    # my_cube.translate("U F F' B D R2")
+
+    # print('afterwards:\n\n', str(my_cube), '\n\n')
+    
+    pass
