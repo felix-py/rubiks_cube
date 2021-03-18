@@ -1,2 +1,3 @@
 # rubiks_cube
-Rubik’s Cube
+<h1>Rubik’s Cube Solver</h1>
+<h2>Old Pochmann</h2>
