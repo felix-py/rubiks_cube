@@ -1,4 +1,25 @@
 """
+Rubik's Cube Solver
+Copyright (C) 2021  Felix Drees
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+How to contact me by electronic and/or paper mail:
+  https://github.com/felix-drees
+"""
+
+"""
 https://en.wikipedia.org/wiki/Rubik%27s_Cube
 
 Move notation:
@@ -18,6 +39,20 @@ When a prime symbol ( ′ ) follows a letter, it denotes an anticlockwise face t
 denotes a clockwise turn. These directions are as one is looking at the specified face. A letter followed by a 2
 (occasionally a superscript ²) denotes two turns, or a 180-degree turn. R is right side clockwise, but R′ is right side
 anticlockwise.
+"""
+
+
+"""
+EXAMPLE OF USE:
+
+my_cube = CubeObj(3, True)
+
+print(f'before:\n\n { str(my_cube) } \n\n')
+
+# do some moves ...
+my_cube.translate("U F F' B D R2")
+
+print(f'afterwards:\n\n { str(my_cube) } \n\n')
 """
 
 import numpy as np
@@ -261,19 +296,3 @@ class CubeObj:
     def anti_L(self) -> None: [self.L() for _ in range(3)]
     def anti_U(self) -> None: [self.U() for _ in range(3)]
     def anti_D(self) -> None: [self.D() for _ in range(3)]
-
-
-if __name__ == '__main__':
-    """
-    example of use
-    """
-    # my_cube = CubeObj(3, True)
-
-    # print('before:\n\n', str(my_cube), '\n\n')
-
-    # do some moves ...
-    # my_cube.translate("U F F' B D R2")
-
-    # print('afterwards:\n\n', str(my_cube), '\n\n')
-    
-    pass
