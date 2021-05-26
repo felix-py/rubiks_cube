@@ -8,7 +8,7 @@
 ### EXAMPLE OF USE:
 >#### Class Obj:
 >```python
->my_cube = CubeObj(3, True)
+>my_cube = CubeObj(NxNxN=3, colour=True)
 >
 >print(f'before:\n\n { str(my_cube) } \n\n')
 >
