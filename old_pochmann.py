@@ -200,6 +200,13 @@ MOVE_FOR_SWAPPING_BUFFER_WITH_TARGET_CORNER = {
 }
 
 
+# def format_of_instructions(instruction: str) -> str:
+#   """ formats the rubicks qube instruction so that it can be understood by the qube class """
+#   return instruction.upper().replace("'", "’").replace('(', '').replace('(', '').split()
+
+format_of_instructions = lambda instruction: instruction.upper().replace("'", "’").replace('(', '').replace('(', '').split()
+
+
 def timer(func):
     def inner(*args, **kwargs):
         s_time = time()
@@ -231,9 +238,9 @@ def create_scrambled_cube(scramble) -> Cube:
     if not isinstance(scramble, str):
         raise ValueError('Scramble has to be str.')
 
-    for element in scramble.upper().replace("'", "’").replace('(', '').replace('(', '').split():
+    for element in format_of_instructions(scramble):
         if element not in POSSIBLE_MOVES:
-            raise ValueError(f'Scramble move unknown. [UNKNOWN MOVE >>{element}<<]')
+            raise ValueError(f'Scramble move unknown. UNKNOWN MOVE >>{element}<<')
 
     my_cube = Cube(3, True)
     my_cube.translate(scramble)
@@ -346,7 +353,7 @@ def solution_schedule() -> None:
     if user_input == 'r': my_cool_cube = create_random_scrambled_cube()
 
     else:
-        scramble = input('Enter your scramble: ').upper().replace("'", "’").replace('(', '').replace('(', '')
+        scramble = format_of_instructions(input('Enter your scramble: '))
         for char in scramble:
             if char not in POSSIBLE_MOVES:
                 raise ValueError('Неизвестная манипуляция.')  # f'Scramble move unknown. [UNKNOWN MOVE >>{element}<<]'
